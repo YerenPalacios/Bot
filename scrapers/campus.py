@@ -1,17 +1,15 @@
-import time
 import logging
-from random import uniform
-from typing import Dict, List
+import time
 
 from selenium import webdriver
-from selenium.common import NoSuchElementException, WebDriverException, SessionNotCreatedException
+from selenium.common import WebDriverException, SessionNotCreatedException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
+
+# from constants import COOKIES
 
 logger = logging.getLogger(__name__)
 
-cookies = {}
 
 class Campus:
 
@@ -24,6 +22,7 @@ class Campus:
 
         try:
             self.driver = webdriver.Chrome()
+            self.driver.delete_all_cookies()
             logger.info("Chrome driver started")
             self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
             self.login()
@@ -43,7 +42,7 @@ class Campus:
         button = self.driver.find_element(By.ID, 'cmdIngresa2')
         button.click()
 
-        cookies = self.driver.get_cookies()
+        # COOKIES.update(self.driver.get_cookies())
 
         self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
 
@@ -51,4 +50,34 @@ class Campus:
     def get_courses(self):
         cards = self.driver.find_elements(By.CLASS_NAME, "card-curso")
         print([card.text for card in cards])
+    
+    def get_unreaded_posts(self):
+        self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
+        unread_posts_text = []
+        time.sleep(1)
+        cards = self.driver.find_elements(By.CLASS_NAME, "card-curso")
+        for course_card in cards:
+            button = course_card.find_element(By.TAG_NAME, "button")
+            button.click()
+
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            time.sleep(2)
+            aprendizaje_button = self.driver.find_element(By.ID, "gridsection-2")
+            aprendizaje_button.click()
+            time.sleep(1)
+            unread_elements = self.driver.find_elements(By.CLASS_NAME, "unread")
+            if len([i.text for i in unread_elements if i.text != ""]) == 0: return []
+            unread_elements[-1].find_element(By.TAG_NAME, "a").click()
+
+            foro = self.driver.find_element(By.CLASS_NAME, "hasunread")
+            foro.find_element(By.TAG_NAME, "a").click()
+            
+            unread_posts = self.driver.find_elements(By.CLASS_NAME, "unread")
+            
+            for i in unread_posts:
+                unread_posts_text.append(i.text)
+            
+            self.driver.close()
+
+        return unread_posts_text
     
