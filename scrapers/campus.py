@@ -15,13 +15,14 @@ class Campus:
 
     def __init__(self):
         chrome_options = Options()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
         
 
         try:
-            self.driver = webdriver.Chrome()
+            import os
+            self.driver = webdriver.Chrome(service=webdriver.ChromeService(executable_path=os.getcwd()+"/chromedriver"))
             self.driver.delete_all_cookies()
             logger.info("Chrome driver started")
             self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
@@ -29,6 +30,7 @@ class Campus:
             
         except (WebDriverException, SessionNotCreatedException) as e:
             logger.error("Chrome driver failed: ", e)
+            raise e
 
     def login(self):
         user_field = self.driver.find_element(By.ID, 'txtuser')
