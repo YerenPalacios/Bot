@@ -22,7 +22,7 @@ class Campus:
 
         try:
             import os
-            self.driver = webdriver.Chrome(service=webdriver.ChromeService(executable_path=os.getcwd()+"/chromedriver"))
+            self.driver = webdriver.ChromiumEdge()
             self.driver.delete_all_cookies()
             logger.info("Chrome driver started")
             self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
