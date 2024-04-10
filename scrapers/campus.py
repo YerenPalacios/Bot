@@ -47,6 +47,7 @@ class Campus:
 
         button = self.driver.find_element(By.ID, 'cmdIngresa2')
         button.click()
+        print('Login succesful')
 
         # COOKIES.update(self.driver.get_cookies())
 
