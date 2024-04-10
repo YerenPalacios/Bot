@@ -21,8 +21,12 @@ class Campus:
         
 
         try:
-            import os
-            self.driver = webdriver.ChromiumEdge()
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option("detach", True)
+            self.driver = webdriver.Remote(
+                command_executor="http://172.17.0.1:4444/wd/hub",
+                options=options
+            )
             self.driver.delete_all_cookies()
             logger.info("Chrome driver started")
             self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
