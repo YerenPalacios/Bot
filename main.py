@@ -1,10 +1,9 @@
-import schedule
-import time
 import os
 import requests
-
+import schedule
+import time
 from scrapers.campus import Campus
-
+from constants import COOKIES
 
 BOT_API_KEY=os.getenv('BOT_API_KEY')
 USER_CHAT_ID=os.getenv('BOT_API_KEY')
@@ -12,11 +11,12 @@ TELEGRAM_API_URL=f"https://api.telegram.org/bot{BOT_API_KEY}"
 
 ID_USUARIO="1094047"
 
-campus = Campus()
 def get_courses():
+    campus = Campus()
     campus.get_courses()
 
 def get_news():
+    campus = Campus()
     return campus.get_unreaded_posts()
 
 
@@ -32,28 +32,46 @@ def get_updates():
     )
     print(response.content)
 
-def send_message(content: str):
+def send_message(content: str, format=''):
     response = requests.post(
         TELEGRAM_API_URL+"/sendMessage",
         headers={'Content_type': 'Application/json'},
         data={
             'chat_id': '6290970561',
-            'text': content
+            'text': content,
+            'parse_mode':format
         }
     )
     print(response.content)
 
-news = get_news()
-for i in news:
-    send_message(i)
-if not len(news):
-    send_message('No hay novedades')
-# send_message()
-def job():
-    # send_message()
-    print(BOT_API_KEY)
+course_email_title = "❗️❗️❗️ De {0} hay varios mensajes"
 
-# schedule.every(30).seconds.do(job)
+course_email_message = "{0}"
+
+without_messages = """🎉 No hay mensajes del curso {0}"""
+
+
+
+def send_unread_emails():
+    campus = Campus()
+    messages = campus.read_courses_email()
+    for course in messages: 
+        if messages[course] and len(messages[course]):
+            send_message(course_email_title.format(course))
+            for message in messages[course]:
+                send_message(course_email_message.format(message))
+            # send_message("Mensages Leidos: \n\nCurso: {c} \n\n {m}".format(c=i, m='\n\n '.join(messages[i]) if messages[i] else ""))
+        else:
+            send_message(without_messages.format(course))
+
+send_unread_emails()
+# send_message()
+# def job():
+#     # send_message()
+#     get_news()
+#     print(BOT_API_KEY)
+
+# schedule.every(12).hour.do(job)
 
 # while True:
 #     schedule.run_pending()
