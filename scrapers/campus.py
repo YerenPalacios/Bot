@@ -16,13 +16,12 @@ class Campus:
 
     def __init__(self):
         chrome_options = Options()
-        # chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--no-sandbox")
         # chrome_options.add_argument("--headless")
-        # chrome_options.add_argument("--disable-dev-shm-usage")
-        
-
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--enable-features=Geolocation")
         try:
-            self.driver = webdriver.Chrome()
+            self.driver = webdriver.Chrome(options=chrome_options)
             self.driver.delete_all_cookies()
             logger.info("Chrome driver started")
             self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
@@ -36,8 +35,7 @@ class Campus:
         time.sleep(1)
         failed_div = self.find(By.CLASS_NAME, "Cuerpo600")
         if failed_div and failed_div[0].text == 'Acceder a Campus Virtual\nSu navegador no logro procesar las cookies para el sitio unad.edu.co':
-            self.driver.delete_all_cookies()
-            self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
+            raise Exception("Failed cookies")
         user_field = self.driver.find_element(By.ID, 'txtuser')
         user_field.send_keys('1022322066')
         button = self.driver.find_element(By.ID, 'cmdIngresa2')
@@ -64,6 +62,7 @@ class Campus:
         unread_posts_text = []
         time.sleep(1)
         cards = self.driver.find_elements(By.CLASS_NAME, "card-curso")
+        print('Courses loaded')
         for course_card in cards:
             button = course_card.find_element(By.TAG_NAME, "button")
             button.click()
@@ -91,6 +90,7 @@ class Campus:
     
     def read_courses_email(self):
         self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
+
         time.sleep(1)
         cards = self.driver.find_elements(By.CLASS_NAME, "card-curso")
 
