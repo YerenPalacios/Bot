@@ -1,4 +1,5 @@
 
+from typing import List
 import requests
 from constants import TELEGRAM_API_URL
 from classes import Message
