@@ -4,9 +4,12 @@ from services.bot import CampusBot
 
 load_dotenv()
 
+def main():
+    bot = CampusBot()
+    bot.send_unread_emails()
 
-bot = CampusBot()
-bot.send_unread_emails()
+if __name__ == "__main__":
+    main()
 
 # send_unread_emails()
 # send_message()
