@@ -7,7 +7,6 @@ from classes import Message
 
 from selenium import webdriver
 from selenium.common import WebDriverException, SessionNotCreatedException
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -37,10 +36,19 @@ class Campus:
         self.driver.quit()
 
     def init_driver(self):
-        chrome_options = Options()
-        chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        # Unknown options
+        # chrome_options.add_argument("--enable-features=AllowGeolocationOnInsecureOrigins")
+        # chrome_options.add_argument("--disable-features=BlockNonSecureSubresources")
+        # chrome_options.add_argument("--disable-features=BlockInsecurePrivateNetworkRequests")
+        # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.geolocation": 0})
+        # chrome_options.add_argument("--use-fake-ui-for-media-stream")
+        # chrome_options.add_argument("--use-fake-device-for-media-stream")
+        # chrome_options.add_argument("--disable-web-security")
+        # chrome_options.add_argument("--disable-gpu")  # Deshabilitar la GPU
+        # chrome_options.add_argument("--window-size=1920x1080") 
+        # chrome_options.add_argument("--allow-running-insecure-content")
         self.driver = webdriver.Chrome(options=chrome_options)
         logger.info("Chrome driver started")
         
@@ -56,6 +64,37 @@ class Campus:
                 continue
             return
         raise Exception("Failed cookies")
+    
+    def check_geolocation(self):
+        # close permissions alert
+        try:  
+            print('... cerrando alert')
+            alert = self.driver.switch_to.alert
+            alert.accept()          
+            print("ejecutando js")
+            self.driver.execute_script(
+                ''' 
+                    window.navigator.geolocation.getCurrentPosition = function(success) {
+                    var position = {
+                        "coords": {
+                        "latitude": "555",
+                        "longitude": "999"
+                        }
+                    };
+                    success(position);
+                    }
+                    try{
+                        localizar()
+                    }catch{
+                        console.log("nada")
+                    }
+                    '''
+                );
+            # prints to review if the body is the expected
+            print(self.driver.find_element(By.TAG_NAME, 'body').text)
+        except:
+            print('No aparecio el alert de permisos')
+            # print(self.driver.find_element(By.TAG_NAME, 'body').text)
 
     def login(self):
         global COOKIES 
@@ -70,9 +109,13 @@ class Campus:
 
         button = self.driver.find_element(By.ID, 'cmdIngresa2')
         button.click()
+
+        self.check_geolocation()
+
         print('Login succesful')
 
         self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
+        self.check_geolocation()
         COOKIES += self.driver.get_cookies()
 
     
