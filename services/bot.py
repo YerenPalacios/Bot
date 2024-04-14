@@ -73,7 +73,7 @@ class CampusBot(Bot):
             if messages_count == 0:
                 self.send_message('🙌 No hay mensajes')
         except Exception as e:
-            self.send_message()
+            self.send_message(e)
 
 
 # def get_updates():
