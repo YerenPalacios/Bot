@@ -1,4 +1,5 @@
 
+import traceback
 from typing import List
 import requests
 from constants import TELEGRAM_API_URL
@@ -73,6 +74,7 @@ class CampusBot(Bot):
             if messages_count == 0:
                 self.send_message('🙌 No hay mensajes')
         except Exception as e:
+            traceback.print_exc()
             self.send_message(e)
 
 

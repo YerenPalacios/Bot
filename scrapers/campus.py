@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from typing import Dict, List
@@ -117,6 +118,9 @@ class Campus:
         self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
         self.check_geolocation()
         COOKIES += self.driver.get_cookies()
+        with open("cookies.txt","w") as file:
+            file.write(json.dumps(COOKIES))
+
 
     
     # def get_unreaded_posts(self):
@@ -157,7 +161,7 @@ class Campus:
             parent = of
         
         try:
-            wait = WebDriverWait(self.driver, 5)
+            wait = WebDriverWait(self.driver, 10)
             wait.until(EC.presence_of_element_located((by, value)))
             return parent.find_elements(by, value)
         except:
@@ -166,7 +170,8 @@ class Campus:
     def read_courses_email(self):
         self.driver.get(CAMPUS_URL+"/miscursos.php")
         self.tab_cursos_id = self.driver.current_window_handle
-        cards = self.get_element(By.CLASS_NAME, "card-curso")
+        first_courses_group = self.get_element(By.CLASS_NAME, 'list__cursos')[0]
+        cards = self.get_element(By.CLASS_NAME, "card-curso", first_courses_group)
 
         if not cards:
             raise Exception('🟥 No encontré el div con el listado de cursos')
@@ -188,6 +193,10 @@ class Campus:
         return course_message
     
     def read_email(self):
+        try:
+            self.driver.find_element(By.CLASS_NAME, 'closebutton').click()
+        except:
+            pass
         email_button = self.get_element(By.ID, "nav-mail-popover-container")[0]
         email_button.click()
 
@@ -222,7 +231,10 @@ class Campus:
                 image_bytes = self.get_imgbytes(image.get_attribute('src'))
                 messages.append(Message('photo', '', image_bytes))
             messages.append(Message('text', "--------\n\n"+mail_div.text))
-            self.find(By.CLASS_NAME, 'mail_goback')[0].click()
+            try:
+                self.get_element(By.CLASS_NAME, 'mail_goback')[0].click()
+            except:
+                self.driver.refresh()
 
         return messages
     
