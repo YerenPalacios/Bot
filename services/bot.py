@@ -2,7 +2,7 @@
 import traceback
 from typing import List
 import requests
-from constants import TELEGRAM_API_URL
+from constants import TELEGRAM_API_URL, USER_CHAT_ID
 from classes import Message
 from scrapers.campus import Campus
 
@@ -21,7 +21,7 @@ class Bot():
             TELEGRAM_API_URL+"/sendMessage",
             headers={'Content_type': 'application/json'},
             data={
-                'chat_id': '6290970561',
+                'chat_id': USER_CHAT_ID,
                 'text': text,
                 # 'parse_mode':fmt
             }
@@ -33,7 +33,7 @@ class Bot():
             TELEGRAM_API_URL+"/sendPhoto",
             headers={'Content_type': 'multipart/form-data'},
             data={
-                'chat_id': '6290970561',
+                'chat_id': USER_CHAT_ID,
                 'caption': msg,
             },
             files={'photo': ('img', file)}
@@ -46,7 +46,7 @@ class Bot():
             TELEGRAM_API_URL+"/sendDocument",
             headers={'Content_type': 'multipart/form-data'},
             data={
-                'chat_id': '6290970561',
+                'chat_id': USER_CHAT_ID,
                 'caption': '',
             },
             files={'document': (msg, file)}
@@ -109,21 +109,3 @@ class CampusBot(Bot):
         except Exception as e:
             traceback.print_exc()
             self.send_message(e)
-
-
-# def get_updates():
-#     response = requests.post(
-#         TELEGRAM_API_URL+"/getUpdates",
-#         headers={'Content_type': 'Application/json'},
-#         data={
-#             'chat_id': USER_CHAT_ID,
-#             'limit': 1,
-#             'timeout': 5
-#         }
-#     )
-#     print(response.content)
-
-
-# def get_news():
-#     campus = Campus()
-#     return campus.get_unreaded_posts()
