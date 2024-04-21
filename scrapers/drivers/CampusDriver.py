@@ -161,4 +161,9 @@ class CampusDriver():
             cookies={i['name']: i['value'] for i in self.driver.get_cookies()}
         ).content
 
+    def check_error(self):
+        try:
+            self.driver.driver.find_element(By.CLASS_NAME, 'closebutton').click()
+        except:
+            pass
 
