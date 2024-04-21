@@ -12,6 +12,8 @@ class Bot():
             return self.send_message(message.text)
         if message.type == "photo":
             return self.send_photo(message.text, message.photo)
+        if message.type == "file":
+            return self.send_file(message.text, message.photo)
         print('Unknown message type')
 
     def send_message(self, text: str):
@@ -35,6 +37,19 @@ class Bot():
                 'caption': msg,
             },
             files={'photo': ('img', file)}
+        )
+        self.log(response)
+
+    def send_file(self, msg: str = '', file: bytes = None):
+        """ msg: file name """
+        response = requests.post(
+            TELEGRAM_API_URL+"/sendDocument",
+            headers={'Content_type': 'multipart/form-data'},
+            data={
+                'chat_id': '6290970561',
+                'caption': '',
+            },
+            files={'document': (msg, file)}
         )
         self.log(response)
 
@@ -73,6 +88,24 @@ class CampusBot(Bot):
                 messages_count += 1
             if messages_count == 0:
                 self.send_message('🙌 No hay mensajes')
+        except Exception as e:
+            traceback.print_exc()
+            self.send_message(e)
+
+    def send_new_posts(self):
+        self.send(Message('text', '👀 Buscando publicaciones nuevas...'))
+        try:
+            campus = Campus()
+            messages = campus.get_unreaded_posts()
+            campus.end()
+            messages_count = 0
+            for course in messages: 
+                if len(messages[course]) == 0:
+                    continue
+                self.send_course_messages(course, messages[course])
+                messages_count += 1
+            if messages_count == 0:
+                self.send_message('✍️ No hay publicaciones')
         except Exception as e:
             traceback.print_exc()
             self.send_message(e)

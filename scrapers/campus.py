@@ -25,42 +25,7 @@ class Campus:
     def end(self):
         self.driver.driver.quit()
 
-    
-    # def get_unreaded_posts(self):
-    #     #use find
-    #     self.driver.get('https://campus0d.unad.edu.co/campus/miscursos.php')
-    #     unread_posts_text = []
-    #     time.sleep(1)
-    #     cards = self.driver.find_elements(By.CLASS_NAME, "card-curso")[:1]
-    #     print('Courses loaded')
-    #     for course_card in cards:
-    #         button = course_card.find_element(By.TAG_NAME, "button")
-    #         button.click()
-
-    #         self.driver.switch_to.window(self.driver.window_handles[-1])
-    #         time.sleep(2)
-    #         aprendizaje_button = self.driver.find_element(By.ID, "gridsection-2")
-    #         aprendizaje_button.click()
-    #         time.sleep(1)
-    #         unread_elements = self.driver.find_elements(By.CLASS_NAME, "unread")
-    #         if len([i.text for i in unread_elements if i.text != ""]) == 0: return []
-    #         unread_elements[-1].find_element(By.TAG_NAME, "a").click()
-
-    #         foro = self.driver.find_element(By.CLASS_NAME, "hasunread")
-    #         foro.find_element(By.TAG_NAME, "a").click()
-            
-    #         unread_posts = self.driver.find_elements(By.CLASS_NAME, "unread")
-            
-    #         for i in unread_posts:
-    #             unread_posts_text.append(i.text)
-            
-    #         self.driver.close()
-
-    #     return unread_posts_text
-    
-    
-        
-    def read_courses_email(self):
+    def get_course_cards(self):
         self.driver.go_to("/miscursos.php")
         # self.tab_cursos_id = self.driver.current_window_handle
         first_courses_group = self.driver.get_element(By.CLASS_NAME, 'list__cursos')
@@ -72,24 +37,36 @@ class Campus:
         if not cards:
             raise Exception('🟥 No encontré ningun curso')
         
+        return cards
+    
+    def go_to_course(self, i):
+        course_card = self.driver.get_elements(By.CLASS_NAME, "card-curso")[i]
+        course_id = course_card.find_element(By.TAG_NAME, "b").text
+        button = course_card.find_element(By.TAG_NAME, "button")
+        button.click()
+        self.driver.go_to_last_tab()
+        return course_id
+
+    def read_courses_email(self):
+        cards = self.get_course_cards()
+
+        if not cards:
+            raise Exception('🟥 No encontré ningun curso')
+        
         course_message: Dict[str, List[Message]] = {}
         
         for i in range(len(cards)):
-            course_card = self.driver.get_elements(By.CLASS_NAME, "card-curso")[i]
-            course_id = course_card.find_element(By.TAG_NAME, "b").text
-            button = course_card.find_element(By.TAG_NAME, "button")
-            button.click()
-            self.driver.go_to_last_tab()
+            course_id = self.go_to_course(i)
             
             messages = self.read_email()
             course_message[course_id] = messages
             self.driver.go_to("/miscursos.php")
-            
+
         return course_message
     
     def read_email(self):
         try:
-            self.driver.find_element(By.CLASS_NAME, 'closebutton').click()
+            self.driver.driver.find_element(By.CLASS_NAME, 'closebutton').click()
         except:
             pass
         email_button = self.driver.get_element(By.ID, "nav-mail-popover-container")
@@ -134,4 +111,71 @@ class Campus:
                 self.driver.refresh()
 
         return messages
+    
+    def get_unreaded_posts(self):
+        #TODO: send some code lines to the driver
+        cards = self.get_course_cards()
+        course_message: Dict[str, List[Message]] = {}
+        for i in range(len(cards)):
+            course_id = self.go_to_course(i)
+            try:
+                self.driver.driver.find_element(By.CLASS_NAME, 'closebutton').click()
+            except:
+                pass
+            course_message[course_id] = []
+            aprendizaje_button = self.driver.get_element(By.ID, "gridsection-2")
+            aprendizaje_button.click()
+            unread_forums = self.driver.get_elements(By.CLASS_NAME, 'unread')
+            for forum in unread_forums:
+                if forum.text == '':
+                    continue
+                try:
+                    parent_div = forum.find_element(By.XPATH, '..').find_element(By.XPATH, '..')
+                    parent_div.find_element(By.CLASS_NAME, 'isrestricted')
+                    continue
+                except:
+                    pass
+                messages: List[Message] = []
+                forum.click()
+                try:
+                    self.driver.driver.find_element(By.CLASS_NAME, 'closebutton').click()
+                except:
+                    pass
+                # more than 1??
+                concrete_forum = self.driver.get_element(By.CLASS_NAME, 'hasunread')
+                if not concrete_forum:
+                    raise
+                first_link = self.driver.get_element(By.TAG_NAME, 'a', concrete_forum)
+                first_link.click()
+
+                unread_posts = self.driver.get_elements(By.CLASS_NAME, 'unread') or []
+                
+                for post in unread_posts:
+                    # user_from = self.driver.get_element(By.CLASS_NAME, 'user_from')
+                    # date = self.driver.get_element(By.CLASS_NAME, 'mail_date')
+                    from_content = self.driver.get_element(By.CLASS_NAME, 'mb-3', post)
+                    messages.append(Message('text', from_content.text))
+                    post_content_container = self.driver.get_element(By.CLASS_NAME, 'post-content-container', post)
+                    images = self.driver.get_elements(By.TAG_NAME, 'img', post_content_container) or []
+                    for image in images:
+                        #TODO: review duplication
+                        image_bytes = self.driver.get_image(image.get_attribute("src"))
+                        messages.append(Message('photo', '', image_bytes))
+
+
+                    messages.append(Message('text', f'💬💬💬 {post_content_container.text}'))
+                    try:
+                        ##more than 1??
+                        attachments = post.parent.find_elements(By.CLASS_NAME, 'rspkr_dr_added')
+                        for attachment in attachments:
+                            bytes_file = self.driver.get_file(attachment.get_attribute('href'))
+                            messages.append(Message('file', attachment.text.strip(), bytes_file))
+                        attachment_bytes = self.driver.get_file(attachment.get_attribute('src'))
+                        messages.append(Message('file', '', attachment_bytes))
+                    except:
+                        pass                
+                    # browser.save_screenshot('...')
+                course_message[course_id].extend(messages)
+            self.driver.go_to("/miscursos.php")
+        return course_message
     

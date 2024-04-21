@@ -19,7 +19,7 @@ class CampusDriver():
 
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         # Unknown options
         # chrome_options.add_argument("--enable-features=AllowGeolocationOnInsecureOrigins")
         # chrome_options.add_argument("--disable-features=BlockNonSecureSubresources")
@@ -150,6 +150,12 @@ class CampusDriver():
         self.driver.switch_to.window(self.driver.window_handles[-1])
 
     def get_image(self, url: str):
+        return requests.get(
+            url,
+            cookies={i['name']: i['value'] for i in self.driver.get_cookies()}
+        ).content
+    
+    def get_file(self, url: str):
         return requests.get(
             url,
             cookies={i['name']: i['value'] for i in self.driver.get_cookies()}
