@@ -5,10 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Bot",
+            "name": "Debugger: Get Messages",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
+            "args": ["read_messages"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debugger: Get Posts",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["read_posts"],
             "console": "integratedTerminal"
         }
     ]

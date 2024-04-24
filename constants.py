@@ -1,8 +1,19 @@
 import json
 import os
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 BOT_API_KEY = os.getenv('BOT_API_KEY')
-USER_CHAT_ID = os.getenv('BOT_API_KEY')
+if not BOT_API_KEY:
+    raise Exception("Define the bot ApiKey")
+
+USER_CHAT_ID = os.getenv('USER_CHAT_ID')
+if not BOT_API_KEY:
+    raise Exception("Define the user chat_id")
+
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_API_KEY}"
 
 #campus

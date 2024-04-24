@@ -1,10 +1,6 @@
 import sys
 
-from dotenv import load_dotenv
-
 from services.bot import CampusBot
-
-load_dotenv()
 
 def main(action: str):
     bot = CampusBot()
