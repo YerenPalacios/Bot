@@ -30,7 +30,9 @@ COMMANDS = {"/readunademail": read_unad_email}
 
 
 @app.post("/hook")
-def recieve_telegram_message(data: TelegramUpdate):
+def recieve_telegram_message(data: dict):
+    print(data)
+    return {}
     bot = Bot()
     message_content = data.message.text
     if message_content.startswith("/"):
@@ -47,8 +49,8 @@ def recieve_telegram_message(data: TelegramUpdate):
     return {}
 
 
-@app.post("/read-campus-email")
+@app.post("/send-message")
 def recieve_telegram_message(data: Message):
     bot = CampusBot()
-    bot.send_unread_emails()
+    bot.send_message(data.text)
     return {}
