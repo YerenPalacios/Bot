@@ -1,9 +1,8 @@
-import threading
-
 from fastapi import FastAPI
 
 from api_models import TelegramUpdate
 from classes import Message
+from commands import COMMANDS
 from services.bot import Bot, CampusBot
 
 app = FastAPI()
@@ -12,15 +11,6 @@ app = FastAPI()
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-
-def read_unad_email(_):
-    bot = CampusBot()
-    thread = threading.Thread(target=bot.send_unread_emails)
-    thread.start()
-
-
-COMMANDS = {"/readunademail": read_unad_email}
 
 
 @app.post("/hook")

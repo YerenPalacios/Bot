@@ -109,4 +109,4 @@ class CampusBot(Bot):
                 self.send_message("✍️ No hay publicaciones")
         except Exception as e:
             traceback.print_exc()
-            self.send_message(e)
+            self.send_message(str(e))
