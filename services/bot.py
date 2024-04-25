@@ -4,6 +4,7 @@ import requests
 from constants import TELEGRAM_API_URL, USER_CHAT_ID
 from classes import Message
 from scrapers.campus import Campus
+from services.gemini import Gemini
 
 
 class Bot:
@@ -61,6 +62,9 @@ class Bot:
         if not res.get("ok") and res.get("ok") == False:
             print(f'Post failed: {res.get("description")}\n\n')
 
+    def ask_gemini(self, something):
+        gemini = Gemini()
+        return gemini.ask_something(something)
 
 class CampusBot(Bot):
 

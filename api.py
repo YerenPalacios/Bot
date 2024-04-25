@@ -1,6 +1,7 @@
-from typing import Union
-
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+from services.bot import Bot
 
 app = FastAPI()
 
@@ -10,6 +11,17 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+class Message(BaseModel):
+    text: str
+
+
+class TelegramUpdate(BaseModel):
+    message: Message
+
+
+@app.post("/hook")
+def recieve_telegram_message(data: TelegramUpdate):
+    bot = Bot()
+    response = bot.ask_gemini(data.message.text)
+    bot.send_message(response)
+    return {}
