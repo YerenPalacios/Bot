@@ -91,7 +91,7 @@ class CampusBot(Bot):
                 self.send_message("🙌 No hay mensajes")
         except Exception as e:
             traceback.print_exc()
-            self.send_message(e)
+            self.send_message(str(e))
 
     def send_new_posts(self):
         self.send(Message("text", "👀 Buscando publicaciones nuevas..."))

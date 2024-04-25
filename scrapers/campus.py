@@ -29,6 +29,8 @@ class Campus:
 
     def get_course_cards(self):
         self.driver.go_to("/miscursos.php")
+        if "encuesta.php" in self.driver.driver.current_url:
+            raise Exception("Toca contestar una encuesta 😒")
         # self.tab_cursos_id = self.driver.current_window_handle
         first_courses_group = self.driver.get_element(By.CLASS_NAME, "list__cursos")
         if not first_courses_group:
