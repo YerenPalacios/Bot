@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Message():
+class Message:
     type: str
     text: str
-    photo: str | bytes = ''
+    photo: str | bytes = ""

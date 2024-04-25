@@ -2,19 +2,22 @@ import sys
 
 from services.bot import CampusBot
 
+
 def main(action: str):
     bot = CampusBot()
-    if action == 'read_messages':
+    if action == "read_messages":
         bot.send_unread_emails()
-    if action == 'read_posts':
+    if action == "read_posts":
         bot.send_new_posts()
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     if not args:
         import time
+
         time.sleep(5)
-        print('No action provided')
+        print("No action provided")
     else:
         main(args[0])
 
