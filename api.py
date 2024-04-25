@@ -1,8 +1,9 @@
-
-from fastapi import FastAPI
-from pydantic import BaseModel
 import threading
 
+from fastapi import FastAPI
+
+from api_models import TelegramUpdate
+from classes import Message
 from services.bot import Bot, CampusBot
 
 app = FastAPI()
@@ -13,28 +14,26 @@ def read_root():
     return {"Hello": "World"}
 
 
-class Message(BaseModel):
-    text: str
-
-
-class TelegramUpdate(BaseModel):
-    message: Message
-
-
 def read_unad_email(_):
     bot = CampusBot()
     thread = threading.Thread(target=bot.send_unread_emails)
     thread.start()
 
+
 COMMANDS = {"/readunademail": read_unad_email}
 
 
 @app.post("/hook")
-def recieve_telegram_message(data: dict):
-    print(data)
-    return {}
+def recieve_telegram_message(data: TelegramUpdate):
     bot = Bot()
+
+    if data.callback_query:
+        bot.send_message("Ese boton no hace nada")
+        return {}
+        # message_content = data.callback_query.data
+
     message_content = data.message.text
+
     if message_content.startswith("/"):
         command = COMMANDS.get(message_content.split(" ")[0])
         if not command:
