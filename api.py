@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from services.bot import Bot
+from services.bot import Bot, CampusBot
 
 app = FastAPI()
 
@@ -24,4 +24,10 @@ def recieve_telegram_message(data: TelegramUpdate):
     bot = Bot()
     response = bot.ask_gemini(data.message.text)
     bot.send_message(response)
+    return {}
+
+@app.post("/read-campus-email")
+def recieve_telegram_message(data: Message):
+    bot = CampusBot()
+    bot.send_unread_emails()
     return {}
