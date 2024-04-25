@@ -1,5 +1,7 @@
+
 from fastapi import FastAPI
 from pydantic import BaseModel
+import threading
 
 from services.bot import Bot, CampusBot
 
@@ -21,8 +23,8 @@ class TelegramUpdate(BaseModel):
 
 def read_unad_email(_):
     bot = CampusBot()
-    bot.send_unread_emails()
-
+    thread = threading.Thread(target=bot.send_unread_emails)
+    thread.start()
 
 COMMANDS = {"/readunademail": read_unad_email}
 
