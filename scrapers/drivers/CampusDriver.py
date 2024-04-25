@@ -16,9 +16,9 @@ CAMPUS_URL = "https://campus0d.unad.edu.co/campus"
 
 
 class CampusDriver:
-    tabs = {}
 
     def __init__(self):
+        self.tabs = {}
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
