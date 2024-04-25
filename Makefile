@@ -3,3 +3,6 @@ i:
 
 r:
 	python main.py
+
+serve:
+	uvicorn api.py
