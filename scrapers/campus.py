@@ -109,7 +109,7 @@ class Campus:
                 messages.append(Message("photo", "", image_bytes))
             messages.append(Message("text", "✉️✉️✉️\n\n" + mail_div.text))
             try:
-                self.driver.get_element(By.CLASS_NAME, "mail_goback")[0].click()
+                self.driver.get_element(By.CLASS_NAME, "mail_goback").click()
             except:
                 self.driver.refresh()
 
