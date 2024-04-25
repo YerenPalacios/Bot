@@ -16,11 +16,12 @@ class Campus:
 
     def __init__(self):
         try:
+            print("Iniciando driver")
             self.driver = CampusDriver()
             self.driver.go_to_campus()
-
+            print("Driver iniciado")
         except (WebDriverException, SessionNotCreatedException) as e:
-            logger.error("Chrome driver failed: ", e)
+            print("Chrome driver failed: ", e)
             raise e
 
     def end(self):
@@ -60,6 +61,7 @@ class Campus:
 
         for i in range(len(cards)):
             course_id = self.go_to_course(i)
+            print("Leyendo mensajes de ", course_id)
 
             messages = self.read_email()
             course_message[course_id] = messages
