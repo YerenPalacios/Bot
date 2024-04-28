@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import os
 
 import requests
 from selenium import webdriver
@@ -13,6 +14,8 @@ from constants import COOKIES
 
 logger = logging.getLogger(__name__)
 CAMPUS_URL = "https://campus0d.unad.edu.co/campus"
+CAMPUS_USER_ID = '1022322066'
+CAMPUS_USER_PASSWORD = os.environ.get('CAMPUS_USER_PASSWORD')
 
 
 class CampusDriver:
@@ -96,12 +99,12 @@ class CampusDriver:
         global COOKIES
         self.retry_cookies()
         user_field = self.get_element(By.ID, "txtuser")
-        user_field.send_keys("1022322066")
+        user_field.send_keys(CAMPUS_USER_ID)
         button = self.driver.find_element(By.ID, "cmdIngresa2")
         button.click()
 
         pass_field = self.driver.find_element(By.ID, "txtclave2")
-        pass_field.send_keys("!sTSjFWT43Wc_Ki")
+        pass_field.send_keys(CAMPUS_USER_PASSWORD)
 
         button = self.driver.find_element(By.ID, "cmdIngresa2")
         button.click()
