@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from api_models import TelegramUpdate
 from classes import Message
@@ -12,10 +12,22 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
+def check_body(data: dict):
+    msg = TelegramUpdate(**data)
+    if not msg.message and not msg.callback_query:
+        return
+    return msg
+
 
 @app.post("/hook")
-def recieve_telegram_message(data: TelegramUpdate):
+async def recieve_telegram_message(request: Request):
+    body = await request.json()
+    data = check_body(body)
     bot = Bot()
+
+    if not data:
+        bot.send_message(str(("Request raro:", request.get("server", "???"), body)))
+        return {}
 
     if data.callback_query:
         bot.send_message("Ese boton no hace nada")
