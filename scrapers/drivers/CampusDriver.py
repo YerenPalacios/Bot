@@ -42,6 +42,9 @@ class CampusDriver:
     def refresh(self):
         self.driver.refresh()
 
+    def end(self):
+        self.driver.close()
+
     def check_geolocation(self):
         # close permissions alert
         try:
