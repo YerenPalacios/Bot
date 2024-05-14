@@ -15,30 +15,14 @@ from constants import COOKIES
 logger = logging.getLogger(__name__)
 CAMPUS_URL = "https://campus0d.unad.edu.co/campus"
 CAMPUS_USER_ID = '1022322066'
-CAMPUS_USER_PASSWORD = os.environ.get('CAMPUS_USER_PASSWORD')
+CAMPUS_USER_PASSWORD = os.environ.get('CAMPUS_USER_PASSWORD', "")
 
 
 class CampusDriver:
 
     def __init__(self):
         self.tabs = {}
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        # Unknown options
-        # chrome_options.add_argument("--enable-features=AllowGeolocationOnInsecureOrigins")
-        # chrome_options.add_argument("--disable-features=BlockNonSecureSubresources")
-        # chrome_options.add_argument("--disable-features=BlockInsecurePrivateNetworkRequests")
-        # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.geolocation": 0})
-        # chrome_options.add_argument("--use-fake-ui-for-media-stream")
-        # chrome_options.add_argument("--use-fake-device-for-media-stream")
-        # chrome_options.add_argument("--disable-web-security")
-        # chrome_options.add_argument("--disable-gpu")  # Deshabilitar la GPU
-        # chrome_options.add_argument("--window-size=1920x1080")
-        # chrome_options.add_argument("--allow-running-insecure-content")
-        self.driver = webdriver.Chrome(options=chrome_options)
-        logger.info("Chrome driver started")
+        self.init_driver()
 
     def add_cookies(self):
         for cookie in COOKIES:
@@ -47,13 +31,17 @@ class CampusDriver:
     def refresh(self):
         self.driver.refresh()
 
+    def end(self):
+        self.driver.close()
+
     def check_geolocation(self):
         # close permissions alert
         try:
-            print("... cerrando alert")
+            print("[WARNING] cerrando alert")
             alert = self.driver.switch_to.alert
+            time.sleep(1)
             alert.accept()
-            print("ejecutando js")
+            print("[WARNING] ejecutando js")
             self.driver.execute_script(
                 """ 
                     window.navigator.geolocation.getCurrentPosition = function(success) {
@@ -75,7 +63,7 @@ class CampusDriver:
             # prints to review if the body is the expected
             print(self.driver.find_element(By.TAG_NAME, "body").text)
         except:
-            print("No aparecio el alert de permisos")
+            print("[WARNING] No aparecio el alert de permisos")
             # print(self.driver.find_element(By.TAG_NAME, 'body').text)
 
     def retry_cookies(self):
@@ -94,7 +82,37 @@ class CampusDriver:
                 continue
             return
         raise Exception("Failed cookies")
-
+    
+    def init_driver(self):
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        # Unknown options
+        # chrome_options.add_argument("--enable-features=AllowGeolocationOnInsecureOrigins")
+        # chrome_options.add_argument("--disable-features=BlockNonSecureSubresources")
+        # chrome_options.add_argument("--disable-features=BlockInsecurePrivateNetworkRequests")
+        # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.geolocation": 0})
+        # chrome_options.add_argument("--use-fake-ui-for-media-stream")
+        # chrome_options.add_argument("--use-fake-device-for-media-stream")
+        # chrome_options.add_argument("--disable-web-security")
+        # chrome_options.add_argument("--disable-gpu")  # Deshabilitar la GPU
+        # chrome_options.add_argument("--window-size=1920x1080")
+        # chrome_options.add_argument("--allow-running-insecure-content")
+        self.driver = webdriver.Chrome(options=chrome_options)
+        logger.info("Chrome driver started")
+        
+    def wait_checking_access(self):
+        time.sleep(3)
+        self.check_geolocation()
+        waiting = self.driver.find_element(By.CLASS_NAME, "MarquesinaMedia")
+        if waiting.text:
+            time.sleep(10)
+            waiting = self.driver.find_element(By.CLASS_NAME, "MarquesinaMedia")
+            if waiting.text:
+                self.end()
+                raise Exception(f"😬 Falló el login: seguramente está mal la contraseña")
+            
     def login(self):
         global COOKIES
         self.retry_cookies()
@@ -109,11 +127,19 @@ class CampusDriver:
         button = self.driver.find_element(By.ID, "cmdIngresa2")
         button.click()
 
+
         self.check_geolocation()
+        self.wait_checking_access()
+        error_div = self.driver.find_element(By.ID, "div_alarma")
+        if error_div and error_div.get_attribute('class') == 'alarma_roja':
+            raise Exception(f"😬 Falló el login: {error_div.text}")
 
         print("Login succesful")
-
         self.driver.get("https://campus0d.unad.edu.co/campus/miscursos.php")
+        self.check_geolocation()
+
+        if "miscursos.php" not in self.driver.current_url:
+            raise Exception("😬 Falló el login")
         self.check_geolocation()
         COOKIES += self.driver.get_cookies()
         with open("cookies.txt", "w") as file:

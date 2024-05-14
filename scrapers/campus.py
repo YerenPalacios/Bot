@@ -124,6 +124,8 @@ class Campus:
         aprendizaje_button = self.driver.get_element(By.ID, "gridsection-2")
         aprendizaje_button.click()
         unread_forums = self.driver.get_elements(By.CLASS_NAME, "unread")
+        if not unread_forums:
+            return []
         for forum in unread_forums:
             if forum.text == "":
                 continue
