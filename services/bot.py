@@ -3,6 +3,7 @@ from typing import List
 import requests
 from constants import TELEGRAM_API_URL, USER_CHAT_ID
 from classes import Message
+from models.process import end_process, start_process
 from scrapers.campus import Campus
 from services.gemini import Gemini
 
@@ -77,6 +78,8 @@ class CampusBot(Bot):
         self,
     ):
         self.send(Message("text", "👀 Buscando mensajes..."))
+        status = 0
+        process = start_process("Read unad email")
         try:
             campus = Campus()
             messages = campus.read_courses_email()
@@ -89,9 +92,12 @@ class CampusBot(Bot):
                 messages_count += 1
             if messages_count == 0:
                 self.send_message("🙌 No hay mensajes")
+            status = 1
         except Exception as e:
+            status = 2
             traceback.print_exc()
             self.send_message(str(e))
+        end_process(process, status)
 
     def send_new_posts(self):
         self.send(Message("text", "👀 Buscando publicaciones nuevas..."))

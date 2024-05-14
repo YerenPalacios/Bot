@@ -15,6 +15,7 @@ if not BOT_API_KEY:
     raise Exception("Define the user chat_id")
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_API_KEY}"
+DB_URL = os.getenv("DB_URL") or ""
 
 # campus
 C_ID_USUARIO = "1094047"

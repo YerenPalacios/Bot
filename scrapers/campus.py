@@ -122,6 +122,7 @@ class Campus:
     def get_course_post_messages(self):
         course_messages = []
         aprendizaje_button = self.driver.get_element(By.ID, "gridsection-2")
+        #TODO: review error
         aprendizaje_button.click()
         unread_forums = self.driver.get_elements(By.CLASS_NAME, "unread")
         if not unread_forums:
