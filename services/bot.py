@@ -79,6 +79,7 @@ class CampusBot(Bot):
     ):
         self.send(Message("text", "👀 Buscando mensajes..."))
         status = 0
+        reason = None
         process = start_process("Read unad email")
         try:
             campus = Campus()
@@ -93,15 +94,18 @@ class CampusBot(Bot):
             if messages_count == 0:
                 self.send_message("🙌 No hay mensajes")
             status = 1
+            
         except Exception as e:
             status = 2
-            traceback.print_exc()
+            reason = traceback.format_exc()
+            print(reason)
             self.send_message(str(e))
-        end_process(process, status)
+        end_process(process, status, reason)
 
     def send_new_posts(self):
         self.send(Message("text", "👀 Buscando publicaciones nuevas..."))
         status = 0
+        reason = None
         process = start_process("Read unad posts")
         try:
             campus = Campus()
@@ -118,6 +122,7 @@ class CampusBot(Bot):
             status = 1
         except Exception as e:
             status = 2
-            traceback.print_exc()
+            reason = traceback.format_exc()
+            print(reason)
             self.send_message(str(e))
-        end_process(process, status)
+        end_process(process, status, reason)
