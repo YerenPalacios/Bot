@@ -101,6 +101,8 @@ class CampusBot(Bot):
 
     def send_new_posts(self):
         self.send(Message("text", "👀 Buscando publicaciones nuevas..."))
+        status = 0
+        process = start_process("Read unad posts")
         try:
             campus = Campus()
             messages = campus.get_unreaded_posts()
@@ -113,6 +115,9 @@ class CampusBot(Bot):
                 messages_count += 1
             if messages_count == 0:
                 self.send_message("✍️ No hay publicaciones")
+            status = 1
         except Exception as e:
+            status = 2
             traceback.print_exc()
             self.send_message(str(e))
+        end_process(process, status)
