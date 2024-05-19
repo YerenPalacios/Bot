@@ -8,6 +8,8 @@ from models.process import get_prpcesses
 from services.bot import Bot, CampusBot
 from fastapi.middleware.cors import CORSMiddleware
 
+from services.notion import Notion
+
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -16,7 +18,7 @@ origins = [
     "https://yerenpalacios.github.io",
     "http://localhost",
     "http://localhost:5500",
-    "http://127.0.0.1:5500"
+    "http://127.0.0.1:5500",
 ]
 
 app.add_middleware(
@@ -31,6 +33,7 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 def check_body(data: dict):
     msg = TelegramUpdate(**data)
@@ -76,6 +79,12 @@ def recieve_telegram_message(data: Message):
     bot.send_message(data.text)
     return {}
 
+
 @app.get("/process")
 def recieve_telegram_message():
     return get_prpcesses()
+
+
+@app.get("/notion_courses")
+def recieve_telegram_message():
+    return Notion().get_courses()

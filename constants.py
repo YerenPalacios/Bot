@@ -16,6 +16,7 @@ if not BOT_API_KEY:
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_API_KEY}"
 DB_URL = os.getenv("DB_URL") or ""
+NOTION_API_KEY = os.getenv("NOTION_API_KEY", "")
 
 # campus
 C_ID_USUARIO = "1094047"
