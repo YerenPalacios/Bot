@@ -47,7 +47,7 @@ class Campus:
 
     def go_to_course(self, i):
         course_card = self.driver.get_elements(By.CLASS_NAME, "card-curso")[i]
-        course_id = course_card.find_element(By.TAG_NAME, "b").text
+        course_id = course_card.find_element(By.TAG_NAME, "b").text.split('\n')[0]
         button = course_card.find_element(By.TAG_NAME, "button")
         button.click()
         self.driver.go_to_last_tab()
